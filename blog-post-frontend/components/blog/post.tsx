@@ -46,17 +46,17 @@ const Post = () => {
       }
     };
     fetchPosts();
-  }, [page]);
+  }, [page, post]);
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center mb-5">
       <div className="">
         <p className="text-lg text-gray-900">Welcome to the blog</p>
       </div>
-      <div className="self-end px-18">
+      <div className="self-end px-84">
         <AddBlogPost />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-rows-3 lg:grid-cols-4 gap-4 mt-4 md:px-20 mb-5">
+      <div className="grid grid-cols-1 gap-4 mt-4 mb-5 w-1/2">
         {post &&
           post.map((item) => (
             <BlogCard
@@ -68,7 +68,7 @@ const Post = () => {
             />
           ))}
       </div>
-      <div className="flex items-center justify-evenly  w-full">
+      <div className="flex items-center justify-evenly w-full">
         <button
           className="bg-zinc-500 hover:bg-zinc-600 py-1 px-2 rounded "
           disabled={page === 1}
