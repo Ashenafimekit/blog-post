@@ -61,6 +61,7 @@ const Post = () => {
           post.map((item) => (
             <BlogCard
               key={item.id}
+              id={String(item.id ?? "")}
               title={item.title}
               content={item.content}
               authorName={item.author.name}

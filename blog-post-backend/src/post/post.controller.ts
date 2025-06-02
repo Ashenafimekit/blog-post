@@ -63,6 +63,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deletePost(@Param('id') id: string) {
+    console.log('🚀 ~ PostController ~ deletePost ~ id:', id);
     const deletedPost = await this.postService.deletePost(id);
     return deletedPost;
   }
