@@ -12,14 +12,24 @@ import { EllipsisVertical } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { getCookie } from "@/lib/get-cookies";
+import { BlogCardProps } from "@/types/blog-card.type";
+import PostForm from "./blog/post-form";
+import AddBlogPost from "./blog/add-blog-post";
+import { Button } from "./ui/button";
 
-const BlogAction = ({ id }: { id: string }) => {
+const BlogAction = ({
+  id,
+  title,
+  content,
+  authorName,
+  authorEmail,
+}: BlogCardProps) => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const token = getCookie("jwtToken");
 
   const deletePost = async () => {
     try {
-      const res = await axios.delete(`${API_URL}/post/:${id}`, {
+      const res = await axios.delete(`${API_URL}/post/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 200) {
@@ -37,10 +47,23 @@ const BlogAction = ({ id }: { id: string }) => {
           <EllipsisVertical />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem>edit</DropdownMenuItem>
+          <DropdownMenuItem>
+            {/* <PostForm/> */}
+            <div onClick={(e) => e.stopPropagation()}>
+              <AddBlogPost
+                id={id}
+                title={title}
+                content={content}
+                authorName={authorName}
+                authorEmail={authorEmail}
+              />
+            </div>
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <button onClick={() => deletePost()}>delete</button>
+            <Button variant="ghost" onClick={() => deletePost()}>
+              delete
+            </Button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

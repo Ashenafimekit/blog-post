@@ -13,7 +13,13 @@ const BlogCard = ({
   return (
     <div className="relative flex flex-col items-center justify-center p-2 rounded-lg shadow-md border bg-white w-full">
       <button className="absolute top-1 right-1 hover:text-gray-800">
-        <BlogAction id={id} />
+        <BlogAction
+          id={id}
+          title={title}
+          content={content}
+          authorName={authorName}
+          authorEmail={authorEmail}
+        />
       </button>
       <h1 className="font-semibold text-sm sm:text-lg md:text-xl text-black">
         {title}

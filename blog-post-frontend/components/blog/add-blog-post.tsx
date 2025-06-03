@@ -10,21 +10,38 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import PostForm from "./post-form";
+import { BlogCardProps } from "@/types/blog-card.type";
 
-const AddBlogPost = () => {
+const AddBlogPost = ({
+  id,
+  title,
+  content,
+  authorName,
+  authorEmail,
+}: BlogCardProps) => {
   return (
     <div>
       <Dialog>
-        <DialogTrigger>
-          <Button className="bg-zinc-800 text-white px-4 py-1 rounded-md">
-            Add Post
-          </Button>
+        <DialogTrigger asChild>
+          {id ? (
+            <Button variant="ghost">edit</Button>
+          ) : (
+            <Button className="bg-zinc-800 text-white px-4 py-1 rounded-md">
+              Add Post
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-center">Create your Post</DialogTitle>
           </DialogHeader>
-          <PostForm />
+          <PostForm
+            id={id}
+            title={title}
+            content={content}
+            authorName={authorName}
+            authorEmail={authorEmail}
+          />
         </DialogContent>
       </Dialog>
     </div>

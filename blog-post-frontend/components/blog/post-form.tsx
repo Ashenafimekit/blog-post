@@ -1,11 +1,18 @@
 "use client";
 import { getUser } from "@/lib/current-user";
 import { getCookie } from "@/lib/get-cookies";
+import { BlogCardProps } from "@/types/blog-card.type";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-const PostForm = () => {
+const PostForm = ({
+  id,
+  title,
+  content,
+  authorName,
+  authorEmail,
+}: BlogCardProps) => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const token = getCookie("jwtToken");
   const user = getUser();
@@ -13,8 +20,8 @@ const PostForm = () => {
   // console.log("🚀 ~ PostForm ~ token:", token);
 
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
+    title: title || "",
+    content: content || "",
     authorId: user.id,
   });
 
@@ -33,24 +40,49 @@ const PostForm = () => {
 
     console.log("Form data:", formData);
 
-    try {
-      const res = await axios.post(`${API_URL}/post`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.status === 201) {
-        toast.success("Post created successfully");
-        setFormData({
-          title: "",
-          content: "",
-          authorId: "",
+    const newPost = async () => {
+      try {
+        const res = await axios.post(`${API_URL}/post`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-      } else {
+        if (res.status === 201) {
+          toast.success("Post created successfully");
+          setFormData({
+            title: "",
+            content: "",
+            authorId: "",
+          });
+        } else {
+          toast.error("Error creating post");
+          console.error("Error creating post:", res.data);
+        }
+      } catch (error) {
+        console.error("Error creating post:", error);
         toast.error("Error creating post");
-        console.error("Error creating post:", res.data);
       }
-    } catch (error) {
-      console.error("Error creating post:", error);
-      toast.error("Error creating post");
+    };
+
+    const updatePost = async () => {
+      try {
+        const res = await axios.patch(`${API_URL}/post/${id}`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 200) {
+          toast.success("updated successfully");
+        } else {
+          toast.error("unable to update");
+        }
+      } catch (error) {
+        console.log("🚀 ~ updatePost ~ error:", error);
+        toast.error("internal server error");
+      }
+    };
+
+    if (id) {
+      console.log(formData);
+      updatePost();
+    } else {
+      newPost();
     }
   };
 
@@ -91,7 +123,7 @@ const PostForm = () => {
           type="submit"
           className="mt-4 bg-zinc-800 text-white px-4 py-2 rounded-md"
         >
-          Create Post
+          {id ? "Update Post" : "Create Post"}
         </button>
       </form>
     </div>
