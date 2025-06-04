@@ -14,6 +14,8 @@ import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PoliciesGuard } from 'src/casl/policies.guard';
+import { checkPermissions } from 'src/casl/check-permissions.decorator';
 
 @Controller('post')
 export class PostController {
@@ -30,6 +32,8 @@ export class PostController {
 
   // @UseGuards(JwtAuthGuard)
   @Get()
+  // @UseGuards(JwtAuthGuard, PoliciesGuard)
+  // @checkPermissions(['read', Post])
   getAllPosts(@Query('page') page: string, @Query('limit') limit: string) {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
