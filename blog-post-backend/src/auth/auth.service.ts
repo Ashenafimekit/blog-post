@@ -70,11 +70,11 @@ export class AuthService {
 
     // console.log('🚀 ~ AuthService ~ login ~ email:', exitingUser.email);
     return {
-      token,
       user: {
         id: exitingUser.id,
         email: exitingUser.email,
         name: exitingUser.name,
+        accessToken: token,
       },
     };
   }

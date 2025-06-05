@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 const PostForm = ({ id, title, content }: BlogCardProps) => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const { data: session } = useSession();
+  console.log("Token:", session?.accessToken); // ✅ Your JWT from backend
   const user = session?.user;
   // console.log("🚀 ~ PostForm ~ user:", user);
 
