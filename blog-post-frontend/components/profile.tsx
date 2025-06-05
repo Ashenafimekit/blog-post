@@ -14,6 +14,11 @@ import { UserType } from "@/lib/user.type";
 
 const Profile = ({ user }: { user: UserType }) => {
   //   console.log("User in Profile:", user);
+  const logout = async () => {
+    signOut();
+    document.cookie =
+      "jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+  };
   return (
     <div>
       <DropdownMenu>
@@ -29,7 +34,7 @@ const Profile = ({ user }: { user: UserType }) => {
           <DropdownMenuItem>{user && (user as any).name} </DropdownMenuItem>
           <DropdownMenuItem>{user && (user as any).email}</DropdownMenuItem>
           <DropdownMenuItem>
-            <button onClick={() => signOut()}>Log out</button>
+            <button onClick={logout}>Log out</button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

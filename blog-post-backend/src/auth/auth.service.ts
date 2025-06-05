@@ -61,19 +61,20 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const payload = { email: exitingUser.email, id: exitingUser.id };
+    const payload = {
+      email: exitingUser.email,
+      id: exitingUser.id,
+      role: exitingUser.role,
+    };
+    const token = this.jwtService.sign(payload);
 
     // console.log('🚀 ~ AuthService ~ login ~ email:', exitingUser.email);
     return {
-      success: true,
-      message: 'Login successful',
-      data: {
-        token: this.jwtService.sign(payload),
-        user: {
-          id: exitingUser.id,
-          email: exitingUser.email,
-          name: exitingUser.name,
-        },
+      token,
+      user: {
+        id: exitingUser.id,
+        email: exitingUser.email,
+        name: exitingUser.name,
       },
     };
   }

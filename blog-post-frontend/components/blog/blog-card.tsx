@@ -1,7 +1,7 @@
 import { BlogCardProps } from "@/types/blog-card.type";
 import { EllipsisVertical } from "lucide-react";
 import React from "react";
-import BlogAction from "../blog-action";
+import BlogAction from "./blog-action";
 
 const BlogCard = ({
   id,

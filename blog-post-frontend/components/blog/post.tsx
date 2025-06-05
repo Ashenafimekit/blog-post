@@ -20,8 +20,10 @@ const Post = () => {
   });
 
   useEffect(() => {
-    const fetchAllPosts = async () => {
-      const res = await axios.get(`${API_URL}/post/count`);
+    const fetchAllPostCount = async () => {
+      const res = await axios.get(`${API_URL}/post/count`, {
+        withCredentials: true,
+      });
       if (res.status === 200) {
         const tot = res.data.total;
         setMeta({
@@ -32,15 +34,18 @@ const Post = () => {
         });
       }
     };
-    fetchAllPosts();
+    fetchAllPostCount();
 
     const fetchPosts = async () => {
       const res = await axios.get(`${API_URL}/post`, {
         params: { page, limit },
+        withCredentials: true,
       });
       if (res.status == 200) {
         // console.log("Response data:", res.data);
         setPost(res.data);
+      } else if (res.status === 401) {
+        console.log("unauthorized access");
       } else {
         console.log("Error fetching posts");
       }

@@ -12,32 +12,48 @@ import {
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PoliciesGuard } from 'src/casl/policies.guard';
-import { checkPermissions } from 'src/casl/check-permissions.decorator';
+import { CurrentUser } from 'src/common/decorator/current-user';
+import { User } from '@prisma/client';
+import {
+  Action,
+  CaslAbilityFactory,
+} from 'src/casl/casl-ability.factory/casl-ability.factory';
 
 @Controller('post')
 export class PostController {
   constructor(
     private readonly postService: PostService,
     private readonly prisma: PrismaService,
+    private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
   @Get('count')
   async totalPosts() {
-    const total = await this.prisma.post.count();
+    const total = await this.prisma.post.count({ where: { deletedAt: null } });
     return { total };
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
-  // @UseGuards(JwtAuthGuard, PoliciesGuard)
-  // @checkPermissions(['read', Post])
-  getAllPosts(@Query('page') page: string, @Query('limit') limit: string) {
+  getAllPosts(
+    @CurrentUser() user: User,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    // console.log('🚀 ~ PostController ~ user:', user);
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
+
     return this.postService.getAllPosts(pageNumber, limitNumber);
+
+    // const ability = this.caslAbilityFactory.createForUser(user);
+    // const posts = this.postService.getAllPosts(pageNumber, limitNumber);
+    // if (ability.can(Action.Read, 'Post')) {
+    //   return posts;
+    // }
+    // return null;
   }
 
   @UseGuards(JwtAuthGuard)

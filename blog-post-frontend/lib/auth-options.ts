@@ -43,7 +43,8 @@ export const authOptions: NextAuthOptions = {
             {
               email,
               password,
-            }
+            },
+            { withCredentials: true }
           );
           if (!response.data.success) {
             return null;
@@ -51,30 +52,10 @@ export const authOptions: NextAuthOptions = {
 
           // console.log("Response data:", response.data);
 
-          const { token, user } = response.data.data;
+          const { user } = response.data;
+          // console.log("🚀 ~ authorize ~ user:", user);
 
-          (await cookies()).set({
-            name: "jwtToken",
-            value: token,
-            httpOnly: false,
-            path: "/",
-            sameSite: "lax",
-          });
-
-          (await cookies()).set({
-            name: "user",
-            value: JSON.stringify(user),
-            httpOnly: false,
-            path: "/",
-            sameSite: "lax",
-          });
-
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            token, // custom access token
-          };
+          return user;
         } catch (error) {
           console.error("Error during authorization:", error);
           (await cookies()).delete("jwtToken");
@@ -93,6 +74,7 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     jwt: async ({ token, user }) => {
+      // console.log("🚀 ~ jwt: ~ user:", user);
       if (user) {
         token.id = user.id;
         token.name = user.name;
@@ -101,13 +83,14 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     session: async ({ session, token }) => {
+      // console.log("🚀 ~ session: ~ token:", token)
       if (session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
       }
 
-      (session as any).accessToken = token;
+      // (session as any).accessToken = token;
       return session;
     },
   },

@@ -1,28 +1,20 @@
 "use client";
-import { getUser } from "@/lib/current-user";
-import { getCookie } from "@/lib/get-cookies";
 import { BlogCardProps } from "@/types/blog-card.type";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-const PostForm = ({
-  id,
-  title,
-  content,
-  authorName,
-  authorEmail,
-}: BlogCardProps) => {
+const PostForm = ({ id, title, content }: BlogCardProps) => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const token = getCookie("jwtToken");
-  const user = getUser();
+  const { data: session } = useSession();
+  const user = session?.user;
   // console.log("🚀 ~ PostForm ~ user:", user);
-  // console.log("🚀 ~ PostForm ~ token:", token);
 
   const [formData, setFormData] = useState({
     title: title || "",
     content: content || "",
-    authorId: user.id,
+    authorId: user?.id || "",
   });
 
   const onchangeHandler = (
@@ -43,7 +35,7 @@ const PostForm = ({
     const newPost = async () => {
       try {
         const res = await axios.post(`${API_URL}/post`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         });
         if (res.status === 201) {
           toast.success("Post created successfully");
@@ -65,7 +57,7 @@ const PostForm = ({
     const updatePost = async () => {
       try {
         const res = await axios.patch(`${API_URL}/post/${id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         });
         if (res.status === 200) {
           toast.success("updated successfully");
