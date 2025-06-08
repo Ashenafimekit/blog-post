@@ -6,12 +6,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 
 const Header = async () => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("jwtToken")?.value;
-  const userString = cookieStore.get("user")?.value;
-  const user = userString ? JSON.parse(userString) : null;
-  // console.log("Token:", token);
-  // console.log("User:", user);
 
   const session = await getServerSession(authOptions);
   // console.log("🚀 ~ Header ~ session:", session)

@@ -1,7 +1,6 @@
 import axios from "axios";
 import { NextAuthOptions, Session, User } from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
-import { cookies } from "next/headers";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -53,13 +52,11 @@ export const authOptions: NextAuthOptions = {
           // console.log("Response data:", response.data);
 
           const { user } = response.data;
-          // console.log("🚀 ~ authorize ~ user:", user);
+          console.log("🚀 ~ authorize ~ user:", user);
 
           return user;
         } catch (error) {
           console.error("Error during authorization:", error);
-          (await cookies()).delete("jwtToken");
-          (await cookies()).delete("user");
           throw new Error("Invalid credentials");
         }
       },
@@ -69,11 +66,12 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
-    maxAge: 30 * 60,
+    maxAge: 24 * 60 * 60,
   },
 
   callbacks: {
     jwt: async ({ token, user }) => {
+      // console.log("🚀 ~ jwt: ~ token:", token);
       // console.log("🚀 ~ jwt: ~ user:", user);
       if (user) {
         token.id = user.id;
@@ -84,14 +82,15 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     session: async ({ session, token }) => {
-      // console.log("🚀 ~ session: ~ token:", token)
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
-      }
+      // console.log("🚀 ~ session: ~ token:", token);
+      session.user = {
+        ...session.user,
+        id: token.id as string,
+        name: token.name as string,
+        email: token.email as string,
+      };
 
-      (session as any).accessToken = token;
+      session.accessToken = token.accessToken as string;
       return session;
     },
   },

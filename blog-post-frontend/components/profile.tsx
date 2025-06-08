@@ -9,15 +9,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { UserType } from "@/lib/user.type";
 
 const Profile = ({ user }: { user: UserType }) => {
   //   console.log("User in Profile:", user);
+  const { data: session } = useSession();
+  console.log("🚀 ~ Profile ~ session:", session?.user);
+  console.log("🚀 ~ Profile ~ token:", session?.accessToken);
+
   const logout = async () => {
     signOut();
-    document.cookie =
-      "jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
   };
   return (
     <div>
@@ -31,8 +33,8 @@ const Profile = ({ user }: { user: UserType }) => {
         <DropdownMenuContent>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>{user && (user as any).name} </DropdownMenuItem>
-          <DropdownMenuItem>{user && (user as any).email}</DropdownMenuItem>
+          <DropdownMenuItem>{session?.user.name} </DropdownMenuItem>
+          <DropdownMenuItem>{session?.user.email}</DropdownMenuItem>
           <DropdownMenuItem>
             <button onClick={logout}>Log out</button>
           </DropdownMenuItem>
