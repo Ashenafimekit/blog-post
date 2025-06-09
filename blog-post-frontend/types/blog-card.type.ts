@@ -4,4 +4,6 @@ export interface BlogCardProps {
   content?: string;
   authorName?: string;
   authorEmail?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }

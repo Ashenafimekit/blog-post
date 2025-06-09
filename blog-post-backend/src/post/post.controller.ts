@@ -29,6 +29,7 @@ export class PostController {
     private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('count')
   async totalPosts() {
     const total = await this.prisma.post.count({ where: { deletedAt: null } });

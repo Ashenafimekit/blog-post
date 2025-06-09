@@ -1,4 +1,5 @@
 "use client";
+import { useSessionData } from "@/hooks/useSession";
 import { BlogCardProps } from "@/types/blog-card.type";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -7,16 +8,23 @@ import { toast } from "react-toastify";
 
 const PostForm = ({ id, title, content }: BlogCardProps) => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const { data: session } = useSession();
-  console.log("Token:", session?.accessToken); // ✅ Your JWT from backend
-  const user = session?.user;
-  // console.log("🚀 ~ PostForm ~ user:", user);
+  const session = useSessionData();
+  // console.log("🚀 ~ PostForm ~ session:", session)
 
   const [formData, setFormData] = useState({
     title: title || "",
     content: content || "",
-    authorId: user?.id || "",
+    authorId: "",
   });
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      setFormData((prev) => ({
+        ...prev,
+        authorId: session.user.id,
+      }));
+    }
+  }, [session?.user?.id]);
 
   const onchangeHandler = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -36,7 +44,7 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
     const newPost = async () => {
       try {
         const res = await axios.post(`${API_URL}/post`, formData, {
-          withCredentials: true,
+          headers: { Authorization: `Bearer ${session.accessToken}` },
         });
         if (res.status === 201) {
           toast.success("Post created successfully");
@@ -58,7 +66,7 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
     const updatePost = async () => {
       try {
         const res = await axios.patch(`${API_URL}/post/${id}`, formData, {
-          withCredentials: true,
+          headers: { Authorization: `Bearer ${session.accessToken}` },
         });
         if (res.status === 200) {
           toast.success("updated successfully");

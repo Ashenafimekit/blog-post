@@ -18,13 +18,15 @@ const AddBlogPost = ({
   content,
   authorName,
   authorEmail,
+  open,
+  onOpenChange,
 }: BlogCardProps) => {
   return (
     <div>
-      <Dialog>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger asChild>
           {id ? (
-            <Button variant="ghost">edit</Button>
+            <Button variant="ghost"></Button>
           ) : (
             <Button className="bg-zinc-800 text-white px-4 py-1 rounded-md">
               Add Post

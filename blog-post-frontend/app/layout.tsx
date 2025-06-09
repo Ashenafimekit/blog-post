@@ -4,6 +4,7 @@ import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import SessionProviderWrapper from "@/lib/SessionProviderWrapper";
 import { getServerSession } from "next-auth";
+import { QueryClientProviderWrapper } from "@/lib/queryClientProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,10 +32,12 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProviderWrapper session={session}>
-          <ToastContainer autoClose={2000} />
-          {children}
-        </SessionProviderWrapper>
+        <QueryClientProviderWrapper>
+          <SessionProviderWrapper session={session}>
+            <ToastContainer autoClose={2000} />
+            {children}
+          </SessionProviderWrapper>
+        </QueryClientProviderWrapper>
       </body>
     </html>
   );

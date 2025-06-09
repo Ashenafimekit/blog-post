@@ -52,9 +52,14 @@ export const authOptions: NextAuthOptions = {
           // console.log("Response data:", response.data);
 
           const { user } = response.data;
-          console.log("🚀 ~ authorize ~ user:", user);
+          // console.log("🚀 ~ authorize ~ user:", user);
 
-          return user;
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            accessToken: user.accessToken,
+          };
         } catch (error) {
           console.error("Error during authorization:", error);
           throw new Error("Invalid credentials");
@@ -71,8 +76,6 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     jwt: async ({ token, user }) => {
-      // console.log("🚀 ~ jwt: ~ token:", token);
-      // console.log("🚀 ~ jwt: ~ user:", user);
       if (user) {
         token.id = user.id;
         token.name = user.name;

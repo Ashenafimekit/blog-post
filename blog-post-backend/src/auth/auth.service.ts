@@ -11,9 +11,6 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string) {
-    // console.log('🚀 ~ AuthService ~ validateUser ~ pass:', pass);
-    // console.log('🚀 ~ AuthService ~ validateUser ~ email:', email);
-
     try {
       const user = await this.prisma.user.findUnique({
         where: { email: email },

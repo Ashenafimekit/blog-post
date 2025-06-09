@@ -12,11 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut, useSession } from "next-auth/react";
 import { UserType } from "@/lib/user.type";
 
-const Profile = ({ user }: { user: UserType }) => {
-  //   console.log("User in Profile:", user);
+const Profile = () => {
   const { data: session } = useSession();
-  console.log("🚀 ~ Profile ~ session:", session?.user);
-  console.log("🚀 ~ Profile ~ token:", session?.accessToken);
 
   const logout = async () => {
     signOut();

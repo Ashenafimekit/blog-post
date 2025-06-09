@@ -4,10 +4,17 @@ import BlogCard from "@/components/blog/blog-card";
 import axios from "axios";
 import { PostType } from "@/types/post.type";
 import AddBlogPost from "./add-blog-post";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
+import { useSessionData } from "@/hooks/useSession";
+import { useQuery } from "@tanstack/react-query";
 
 const Post = () => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const session = useSessionData();
+
+  // console.log("🚀 ~ Post ~ user:", session?.user);
+  // console.log("🚀 ~ Post ~ token:", session?.accessToken);
 
   const [post, setPost] = useState<PostType[]>([]);
   const [page, setPage] = useState(1);
@@ -20,9 +27,11 @@ const Post = () => {
   });
 
   useEffect(() => {
+    if (!session?.accessToken) return; // wait until accessToken is ready
+
     const fetchAllPostCount = async () => {
       const res = await axios.get(`${API_URL}/post/count`, {
-        withCredentials: true,
+        headers: { Authorization: `Bearer ${session?.accessToken}` },
       });
       if (res.status === 200) {
         const tot = res.data.total;
@@ -38,8 +47,8 @@ const Post = () => {
 
     const fetchPosts = async () => {
       const res = await axios.get(`${API_URL}/post`, {
+        headers: { Authorization: `Bearer ${session?.accessToken}` },
         params: { page, limit },
-        withCredentials: true,
       });
       if (res.status == 200) {
         // console.log("Response data:", res.data);
@@ -51,7 +60,7 @@ const Post = () => {
       }
     };
     fetchPosts();
-  }, [page, post]);
+  }, [page, session?.accessToken]);
 
   return (
     <div className="flex flex-col items-center justify-center mb-5">
