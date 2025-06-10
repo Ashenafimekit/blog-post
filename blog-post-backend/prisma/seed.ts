@@ -1,14 +1,19 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
+  const password =
+    process.env.SEED_PASSWORD || 'change this password with your password';
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
   const melos = await prisma.user.upsert({
     where: { email: 'melos@gmail.com' },
     update: {},
     create: {
       name: 'Melos',
       email: 'melos@melody.com',
-      password: 'password',
+      password: hashedPassword,
       role: 'ADMIN',
       posts: {
         create: {
@@ -26,7 +31,7 @@ async function main() {
     create: {
       name: 'ashe',
       email: 'ashe@gmail.com',
-      password: 'password',
+      password: hashedPassword,
       role: 'USER',
       posts: {
         create: {
