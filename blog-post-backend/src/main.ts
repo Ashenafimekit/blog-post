@@ -1,10 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { AllExceptionFilter } from './common/filters/all-exception.filter';
+import {
+  PrismaExceptionFilter,
+  PrismaUnknownExceptionFilter,
+} from './common/filters/prisma-exception.filter';
+import { PrismaValidationErrorFilter } from './common/filters/prisma-validation-error.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({ prefix: 'Blog' }),
+  });
+  app.useGlobalFilters(
+    new HttpExceptionFilter(),
+    new AllExceptionFilter(),
+    new PrismaExceptionFilter(),
+    new PrismaUnknownExceptionFilter(),
+    new PrismaValidationErrorFilter(),
+  );
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.use(cookieParser());
   app.enableCors({

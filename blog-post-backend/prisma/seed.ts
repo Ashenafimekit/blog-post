@@ -7,7 +7,7 @@ async function main() {
     update: {},
     create: {
       name: 'Melos',
-      email: 'melos@prisma.io',
+      email: 'melos@melody.com',
       password: 'password',
       role: 'ADMIN',
       posts: {

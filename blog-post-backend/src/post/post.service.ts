@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
 
 @Injectable()
 export class PostService {
+  private readonly logger = new Logger(PostService.name, { timestamp: true });
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getAllPosts(page: number, limit: number) {
