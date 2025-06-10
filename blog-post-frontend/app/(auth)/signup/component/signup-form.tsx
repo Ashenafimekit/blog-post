@@ -16,9 +16,9 @@ export function SignupForm({
     name: "",
     email: "",
     password: "",
-    cPassword: "",
+    confirmPassword: "",
   });
-  const API_URL = process.env.API_URL;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -105,10 +105,10 @@ export function SignupForm({
             <Label htmlFor="cPassword">Confirm Password</Label>
           </div>
           <Input
-            name="cPassword"
+            name="confirmPassword"
             type="password"
             required
-            value={formData.cPassword}
+            value={formData.confirmPassword}
             onChange={handleChange}
           />
         </div>

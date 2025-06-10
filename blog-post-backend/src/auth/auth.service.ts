@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly loger = new Logger(AuthService.name, { timestamp: true });
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -39,6 +41,24 @@ export class AuthService {
         throw error;
       }
       throw new Error('User validation failed');
+    }
+  }
+
+  async signup(createUserDto: CreateUserDto) {
+    try {
+      const password = createUserDto.password;
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      const user = await this.prisma.user.create({
+        data: {
+          name: createUserDto.name,
+          email: createUserDto.email,
+          password: hashedPassword,
+        },
+      });
+      return user;
+    } catch (error) {
+      this.loger.error(`internal server error`);
+      throw new Error(error);
     }
   }
 
