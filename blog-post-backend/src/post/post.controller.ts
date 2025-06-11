@@ -17,7 +17,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CurrentUser } from 'src/common/decorator/current-user';
 import { User } from '@prisma/client';
 import {
-  Action,
+  // Action,
   CaslAbilityFactory,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 
@@ -83,8 +83,11 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async deletePost(@Param('id') id: string) {
-    const deletedPost = await this.postService.deletePost(id);
+  async deletePost(
+    @Param('id') id: string,
+    @Body('authorId') authorId: string,
+  ) {
+    const deletedPost = await this.postService.deletePost(id, authorId);
     return deletedPost;
   }
 }

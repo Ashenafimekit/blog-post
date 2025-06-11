@@ -1,7 +1,6 @@
 import Link from "next/link";
 import React from "react";
 import Profile from "./profile";
-import { cookies } from "next/headers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 

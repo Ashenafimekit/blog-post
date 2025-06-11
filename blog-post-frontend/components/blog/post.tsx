@@ -28,38 +28,47 @@ const Post = () => {
 
   useEffect(() => {
     if (!session?.accessToken) return; // wait until accessToken is ready
-
-    const fetchAllPostCount = async () => {
-      const res = await axios.get(`${API_URL}/post/count`, {
-        headers: { Authorization: `Bearer ${session?.accessToken}` },
-      });
-      if (res.status === 200) {
-        const tot = res.data.total;
-        setMeta({
-          page,
-          limit: 5,
-          total: tot,
-          totalPages: Math.ceil(tot / limit),
+    try {
+      const fetchAllPostCount = async () => {
+        const res = await axios.get(`${API_URL}/post/count`, {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+          // withCredentials: true,
         });
-      }
-    };
-    fetchAllPostCount();
+        if (res.status === 200) {
+          const tot = res.data.total;
+          setMeta({
+            page,
+            limit: 5,
+            total: tot,
+            totalPages: Math.ceil(tot / limit),
+          });
+        }
+      };
+      fetchAllPostCount();
+    } catch (error) {
+      console.log("🚀 ~ useEffect ~ error:", error);
+    }
 
-    const fetchPosts = async () => {
-      const res = await axios.get(`${API_URL}/post`, {
-        headers: { Authorization: `Bearer ${session?.accessToken}` },
-        params: { page, limit },
-      });
-      if (res.status == 200) {
-        // console.log("Response data:", res.data);
-        setPost(res.data);
-      } else if (res.status === 401) {
-        console.log("unauthorized access");
-      } else {
-        console.log("Error fetching posts");
-      }
-    };
-    fetchPosts();
+    try {
+      const fetchPosts = async () => {
+        const res = await axios.get(`${API_URL}/post`, {
+          headers: { Authorization: `Bearer ${session?.accessToken}` },
+          // withCredentials: true,
+          params: { page, limit },
+        });
+        if (res.status == 200) {
+          // console.log("Response data:", res.data);
+          setPost(res.data);
+        } else if (res.status === 401) {
+          console.log("unauthorized access");
+        } else {
+          console.log("Error fetching posts");
+        }
+      };
+      fetchPosts();
+    } catch (error) {
+      console.log("🚀 ~ useEffect ~ error:", error);
+    }
   }, [page, session?.accessToken]);
 
   return (

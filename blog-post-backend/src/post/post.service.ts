@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
@@ -34,7 +40,9 @@ export class PostService {
 
       return posts;
     } catch (error) {
-      console.error('Error fetching all posts:', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new Error('Failed to fetch posts');
     }
   }
@@ -65,7 +73,7 @@ export class PostService {
       return post;
     } catch (error) {
       console.error('Error fetching post by ID:', error);
-      if (error instanceof NotFoundException) {
+      if (error instanceof HttpException) {
         throw error;
       }
       throw new Error();
@@ -74,10 +82,10 @@ export class PostService {
 
   async createPost(createPostDto: CreatePostDto) {
     const { title, content, published, authorId } = createPostDto;
-    console.log(
-      '🚀 ~ PostService ~ createPost ~ createPostDto:',
-      createPostDto,
-    );
+    // console.log(
+    //   '🚀 ~ PostService ~ createPost ~ createPostDto:',
+    //   createPostDto,
+    // );
 
     try {
       const post = await this.prisma.post.create({
@@ -107,15 +115,23 @@ export class PostService {
       });
       return post;
     } catch (error) {
-      console.error('Error creating post:', error);
-      throw new Error('Failed to create post');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new Error('Internal Server Error');
     }
   }
 
   async updatePost(updatePostDto: UpdatePostDto, id: string) {
     const { title, content, published, authorId } = updatePostDto;
     try {
-      const post = await this.prisma.post.update({
+      const post = await this.prisma.post.findUnique({
+        where: { id: id },
+      });
+      if (post?.authorId !== authorId) {
+        throw new UnauthorizedException("can't update another author post");
+      }
+      const updatePost = await this.prisma.post.update({
         where: { id: id },
         data: {
           title: title,
@@ -141,22 +157,27 @@ export class PostService {
           },
         },
       });
-      if (!post) {
+      if (!updatePost) {
         throw new NotFoundException('Post not found');
       }
-      return post;
+      return updatePost;
     } catch (error) {
-      console.error('Error updating post:', error);
-      if (error instanceof NotFoundException) {
+      if (error instanceof HttpException) {
         throw error;
       }
       throw new Error('Failed to update post');
     }
   }
 
-  async deletePost(id: string) {
+  async deletePost(id: string, auhorId: string) {
     try {
-      const post = await this.prisma.post.update({
+      const post = await this.prisma.post.findUnique({
+        where: { id: id },
+      });
+      if (post?.authorId !== auhorId) {
+        throw new UnauthorizedException("can't delete another author post");
+      }
+      const deletePost = await this.prisma.post.update({
         where: { id: id },
         data: {
           deletedAt: new Date(),
@@ -175,13 +196,12 @@ export class PostService {
           },
         },
       });
-      if (!post) {
+      if (!deletePost) {
         throw new NotFoundException('Post not found');
       }
-      return post;
+      return deletePost;
     } catch (error) {
-      console.error('Error deleting post:', error);
-      if (error instanceof NotFoundException) {
+      if (error instanceof HttpException) {
         throw error;
       }
       throw new Error('Failed to delete post');

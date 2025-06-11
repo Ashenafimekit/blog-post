@@ -73,9 +73,31 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
         } else {
           toast.error("unable to update");
         }
-      } catch (error) {
-        console.log("🚀 ~ updatePost ~ error:", error);
-        toast.error("internal server error");
+      } catch (error: any) {
+        if (error.response) {
+          const status = error.response.status;
+          let message = error.response.data.message || "something went wrong";
+
+          if (Array.isArray(message)) {
+            message.join(", ");
+          }
+          if (status === 401) {
+            toast.error(`Unauthorized: ${message}`);
+          } else if (status === 404) {
+            toast.error(`Not found: ${message}`);
+          } else {
+            toast.error(message);
+          }
+
+          console.log(`[${status}]`, message);
+        } else if (error.request) {
+          toast.error("No response from server");
+          console.error("No response:", error.request);
+        } else {
+          // Something else (e.g., config issue)
+          toast.error("Unexpected error");
+          console.error("Error:", error.message);
+        }
       }
     };
 
@@ -118,6 +140,24 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
             onChange={onchangeHandler}
             className="border border-gray-300 rounded-md p-2"
             required
+          />
+        </div>
+        <div className="flex flex-col gap-2 mt-4">
+          <label
+            htmlFor="imageUpload"
+            className="block text-sm font-medium text-gray-00 mb-2"
+          >
+            Upload Image
+          </label>
+          <input
+            type="file"
+            id="imageUpload"
+            accept="image/*"
+            className="block border border-gray-300 rounded-md w-1/2 text-sm text-gray-900
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-md file:border-0
+            file:text-sm file:font-semibold
+            file:bg-blue-50 file:text-gray-900"
           />
         </div>
         <button

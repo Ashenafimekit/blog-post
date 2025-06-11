@@ -24,7 +24,6 @@ export class AuthController {
   @Post('login')
   async login(@Request() req: { user: { email: string } }) {
     const result = await this.auhtService.login(req.user);
-    // console.log('🚀 ~ AuthController ~ result:', result);
 
     return {
       success: true,
