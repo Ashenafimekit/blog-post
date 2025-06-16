@@ -34,7 +34,11 @@ export default async function RootLayout({
       >
         <QueryClientProviderWrapper>
           <SessionProviderWrapper session={session}>
-            <ToastContainer autoClose={2000} />
+            <ToastContainer
+              autoClose={2000}
+              position="top-center"
+              theme="dark"
+            />
             {children}
           </SessionProviderWrapper>
         </QueryClientProviderWrapper>

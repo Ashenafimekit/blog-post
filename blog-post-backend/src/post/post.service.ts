@@ -81,18 +81,18 @@ export class PostService {
   }
 
   async createPost(createPostDto: CreatePostDto) {
-    const { title, content, published, authorId } = createPostDto;
-    // console.log(
-    //   '🚀 ~ PostService ~ createPost ~ createPostDto:',
-    //   createPostDto,
-    // );
+    const { title, content, authorId } = createPostDto;
+    console.log(
+      '🚀 ~ PostService ~ createPost ~ createPostDto:',
+      createPostDto,
+    );
 
     try {
       const post = await this.prisma.post.create({
         data: {
           title: title,
           content: content,
-          published: published,
+          published: true,
           author: {
             connect: {
               id: authorId,
@@ -123,7 +123,7 @@ export class PostService {
   }
 
   async updatePost(updatePostDto: UpdatePostDto, id: string) {
-    const { title, content, published, authorId } = updatePostDto;
+    const { title, content, authorId } = updatePostDto;
     try {
       const post = await this.prisma.post.findUnique({
         where: { id: id },
@@ -136,7 +136,6 @@ export class PostService {
         data: {
           title: title,
           content: content,
-          published: published,
           author: {
             connect: {
               id: authorId,

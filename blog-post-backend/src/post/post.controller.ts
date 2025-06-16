@@ -2,15 +2,22 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
+// import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
+import { CreatePostDto, PostSchema } from 'src/zod';
 import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -20,6 +27,8 @@ import {
   // Action,
   CaslAbilityFactory,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
+import { ZodValiationPipe } from 'src/common/pipes/zod-validation.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('post')
 export class PostController {
@@ -66,7 +75,24 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createPost(@Body() createPostDto: CreatePostDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  async createPost(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }), // Max 5MB
+          new FileTypeValidator({ fileType: 'image/(jpeg|png|webp|jpg)' }),
+        ],
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        fileIsRequired: false,
+      }),
+    )
+    file: Express.Multer.File,
+    @Body(new ZodValiationPipe(PostSchema))
+    createPostDto: CreatePostDto,
+  ) {
+    // console.log('🚀 ~ PostController ~ createPostDto:', createPostDto);
+    // console.log('Received Image File Details:', file);
     const createdPost = await this.postService.createPost(createPostDto);
     return createdPost;
   }

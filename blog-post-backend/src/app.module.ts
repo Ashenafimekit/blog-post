@@ -10,9 +10,17 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { CaslModule } from './casl/casl.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
-  imports: [UserModule, PostModule, PrismaModule, AuthModule, CaslModule],
+  imports: [
+    UserModule,
+    PostModule,
+    PrismaModule,
+    AuthModule,
+    CaslModule,
+    MulterModule.register({}),
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

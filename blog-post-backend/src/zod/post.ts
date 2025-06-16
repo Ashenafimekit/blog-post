@@ -1,12 +1,9 @@
 import { z } from 'zod';
 
 export const PostSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  content: z.string().nullish(),
-  published: z.boolean().nullish(),
-  authorId: z.string().nullish(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  deletedAt: z.date().nullish(),
+  title: z.string().min(5, 'Title must have at least 5 characters'),
+  content: z.string().min(10, 'Content must have at least 10 characters'),
+  authorId: z.string().nonempty('Author ID is required to post or update'),
 });
+
+export type CreatePostDto = z.infer<typeof PostSchema>;

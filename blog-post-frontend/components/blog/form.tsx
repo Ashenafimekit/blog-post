@@ -1,45 +1,57 @@
 "use client";
 import { useSessionData } from "@/hooks/useSession";
-import { BlogPostSchema, Inputs } from "@/schemas/blog-post-form-shema";
 import { BlogCardProps } from "@/types/blog-card.type";
 import axios from "axios";
-import React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 const PostForm = ({ id, title, content }: BlogCardProps) => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const session = useSessionData();
   // console.log("🚀 ~ PostForm ~ session:", session)
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<Inputs>({ resolver: zodResolver(BlogPostSchema) });
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log("🚀 ~ PostForm ~ data:", data);
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("content", data.content);
-    formData.append("authorId", session.user.id);
+  const [formData, setFormData] = useState({
+    title: title || "",
+    content: content || "",
+    authorId: "",
+  });
 
-    if (data.image) {
-      data.image.forEach((image) => formData.append("image", image));
+  useEffect(() => {
+    if (session?.user?.id) {
+      setFormData((prev) => ({
+        ...prev,
+        authorId: session.user.id,
+      }));
     }
+  }, [session?.user?.id]);
+
+  const onchangeHandler = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    console.log("Form data:", formData);
 
     const newPost = async () => {
       try {
         const res = await axios.post(`${API_URL}/post`, formData, {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { Authorization: `Bearer ${session.accessToken}` },
         });
-        console.log("resposne : ", res);
         if (res.status === 201) {
           toast.success("Post created successfully");
+          setFormData({
+            title: "",
+            content: "",
+            authorId: "",
+          });
         } else {
           toast.error("Error creating post");
           console.error("Error creating post:", res.data);
@@ -88,6 +100,7 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
     };
 
     if (id) {
+      console.log(formData);
       updatePost();
     } else {
       newPost();
@@ -96,43 +109,47 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
 
   return (
     <div>
-      <form
-        onSubmit={handleSubmit(onSubmit, (err) =>
-          console.log("validation error", err)
-        )}
-      >
+      <form onSubmit={submitHandler}>
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-900">Title</label>
+          <label htmlFor="title" className="text-sm font-medium text-gray-900">
+            Title
+          </label>
           <input
             type="text"
-            {...register("title")}
+            name="title"
+            id="title"
+            value={formData.title}
+            onChange={onchangeHandler}
             className="border border-gray-300 rounded-md p-2"
+            required
           />
-
-          {errors.title && (
-            <span className="text-sm text-red-500">{errors.title.message}</span>
-          )}
         </div>
         <div className="flex flex-col gap-2 mt-4">
-          <label className="text-sm font-medium text-gray-900">Content</label>
+          <label
+            htmlFor="content"
+            className="text-sm font-medium text-gray-900"
+          >
+            Content
+          </label>
           <textarea
+            name="content"
+            id="content"
+            value={formData.content}
+            onChange={onchangeHandler}
             className="border border-gray-300 rounded-md p-2"
-            {...register("content")}
+            required
           />
-          {errors.content && (
-            <span className="text-sm text-red-500">
-              {errors.content.message}
-            </span>
-          )}
         </div>
         <div className="flex flex-col gap-2 mt-4">
-          <label className="block text-sm font-medium text-gray-00 mb-2">
+          <label
+            htmlFor="imageUpload"
+            className="block text-sm font-medium text-gray-00 mb-2"
+          >
             Upload Image
           </label>
           <input
             type="file"
-            {...register("image")}
-            multiple
+            id="imageUpload"
             accept="image/*"
             className="block border border-gray-300 rounded-md w-1/2 text-sm text-gray-900
             file:mr-4 file:py-2 file:px-4
@@ -140,15 +157,12 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
             file:text-sm file:font-semibold
             file:bg-blue-50 file:text-gray-900"
           />
-          {typeof errors.image?.message === "string" && (
-            <span className="text-sm text-red-500">{errors.image.message}</span>
-          )}
         </div>
         <button
           type="submit"
           className="mt-4 bg-zinc-800 text-white px-4 py-2 rounded-md"
         >
-          {isSubmitting ? "loading" : id ? "Update Post" : "Create Post"}
+          {id ? "Update Post" : "Create Post"}
         </button>
       </form>
     </div>
