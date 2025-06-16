@@ -6,57 +6,37 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { loginFormSchema } from "../schema/login-form.schema";
+import { loginFormSchema, loginInputs } from "../schema/login-form.schema";
 import { signIn } from "next-auth/react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"form">) {
+export function LoginForm() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<loginInputs>({ resolver: zodResolver(loginFormSchema) });
+
+  const onSubmit: SubmitHandler<loginInputs> = async (data) => {
+    console.log("Form submitted:", data);
 
     try {
-      const result = loginFormSchema.safeParse(formData);
-      if (result.success) {
-        //   const res = await axios.post(`${API_URL}/auth/login`, formData);
-        //   if (res.data.success) {
-        //     console.log("Response data:", res.data);
-        //     toast.success("Login successful");
-        //   } else {
-        //     console.log("Error logging in");
-        //     toast.error("Error logging in");
-        //   }
-
-        const res = await signIn("credentials", {
-          email: formData.email,
-          password: formData.password,
-          redirect: false,
-        });
-        if (res?.error) {
-          console.log("Error logging in:", res.error);
-          toast.error("Invalid email or password");
-        } else {
-          // console.log("Login successful");
-          toast.success("Login successful");
-         
-          window.location.href = "/";
-        }
-      }
-      if (result.error) {
-        console.log("Form is invalid", result.error.format());
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+      if (res?.error) {
+        console.log("Error logging in:", res.error);
         toast.error("Invalid email or password");
+      } else {
+        // console.log("Login successful");
+        toast.success("Login successful");
+
+        window.location.href = "/";
       }
     } catch (error) {
       console.error("Error during form submission:", error);
@@ -64,40 +44,28 @@ export function LoginForm({
     }
   };
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={cn("flex flex-col gap-6", className)}
-      {...props}
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Login to your account</h1>
-        {/* <p className="text-muted-foreground text-sm text-balance">
-          Enter your credentials below to login to your account
-        </p> */}
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
           <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            required
-            value={formData.email}
-            onChange={handleChange}
-          />
+          <Input {...register("email")} placeholder="m@example.com" />
+          {errors.email && (
+            <span className="text-sm text-red-500">{errors.email.message}</span>
+          )}
         </div>
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
           </div>
-          <Input
-            id="password"
-            type="password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-          />
+          <Input {...register("password")} type="password" />
+          {errors.password && (
+            <span className="text-sm text-red-500">
+              {errors.password.message}
+            </span>
+          )}
         </div>
         <Button type="submit" className="w-full">
           Login

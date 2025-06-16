@@ -10,3 +10,5 @@ export const loginFormSchema = z.object({
     .min(1, { message: "Password is required" })
     .min(4, { message: "Password must be at least 4 characters long" }),
 });
+
+export type loginInputs = z.infer<typeof loginFormSchema>;
