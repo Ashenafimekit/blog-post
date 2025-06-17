@@ -8,6 +8,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
+import { PostImageType } from './types/post-image.type';
 
 @Injectable()
 export class PostService {
@@ -23,21 +24,12 @@ export class PostService {
         skip: offset,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          published: true,
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
+        include: {
+          author: true,
+          images: true,
         },
       });
-
+      console.log(posts);
       return posts;
     } catch (error) {
       if (error instanceof HttpException) {
@@ -51,18 +43,9 @@ export class PostService {
     try {
       const post = await this.prisma.post.findUnique({
         where: { id: id, deletedAt: null },
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          published: true,
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
+        include: {
+          author: true,
+          images: true,
         },
       });
 
@@ -80,8 +63,10 @@ export class PostService {
     }
   }
 
-  async createPost(createPostDto: CreatePostDto) {
+  async createPost(createPostDto: CreatePostDto, image: PostImageType) {
     const { title, content, authorId } = createPostDto;
+
+    console.log('🚀 ~ PostService ~ createPost ~ image:', image);
     console.log(
       '🚀 ~ PostService ~ createPost ~ createPostDto:',
       createPostDto,
@@ -93,24 +78,24 @@ export class PostService {
           title: title,
           content: content,
           published: true,
+          images: {
+            create: {
+              originalName: image.originalName,
+              fileName: image.fileName,
+              size: image.size,
+              mimetype: image.mimetype,
+              path: image.path,
+            },
+          },
           author: {
             connect: {
               id: authorId,
             },
           },
         },
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          published: true,
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
+        include: {
+          author: true,
+          images: true,
         },
       });
       return post;
@@ -118,7 +103,7 @@ export class PostService {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new Error('Internal Server Error');
+      throw new Error(error);
     }
   }
 
@@ -142,18 +127,9 @@ export class PostService {
             },
           },
         },
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          published: true,
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
+        include: {
+          author: true,
+          images: true,
         },
       });
       if (!updatePost) {
@@ -181,18 +157,9 @@ export class PostService {
         data: {
           deletedAt: new Date(),
         },
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          published: true,
-          author: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
+        include: {
+          author: true,
+          images: true,
         },
       });
       if (!deletePost) {

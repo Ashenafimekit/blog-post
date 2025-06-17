@@ -138,7 +138,7 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
             file:mr-4 file:py-2 file:px-4
             file:rounded-md file:border-0
             file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-gray-900"
+            file:bg-blue-100 file:text-gray-900"
           />
           {typeof errors.image?.message === "string" && (
             <span className="text-sm text-red-500">{errors.image.message}</span>

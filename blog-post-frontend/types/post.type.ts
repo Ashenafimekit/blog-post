@@ -7,4 +7,12 @@ export interface PostType {
     email: string;
     published?: boolean;
   };
+  images?: {
+    id: string;
+    mimetype: string;
+    size: number;
+    fileName: string;
+    path: string;
+    originalName: string;
+  }[];
 }

@@ -9,11 +9,18 @@ import {
   PrismaUnknownExceptionFilter,
 } from './common/filters/prisma-exception.filter';
 import { PrismaValidationErrorFilter } from './common/filters/prisma-validation-error.filter';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new ConsoleLogger({ prefix: 'Blog' }),
   });
+
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads',
+  });
+
   app.useGlobalFilters(
     new HttpExceptionFilter(),
     new AllExceptionFilter(),

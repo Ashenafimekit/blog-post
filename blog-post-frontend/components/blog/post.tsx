@@ -4,9 +4,7 @@ import BlogCard from "@/components/blog/blog-card";
 import axios from "axios";
 import { PostType } from "@/types/post.type";
 import AddBlogPost from "./add-blog-post";
-import { getSession, useSession } from "next-auth/react";
 import { useSessionData } from "@/hooks/useSession";
-import { useQuery } from "@tanstack/react-query";
 
 const Post = () => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -76,10 +74,10 @@ const Post = () => {
       <div className="">
         <p className="text-lg text-gray-900">Welcome to the blog</p>
       </div>
-      <div className="self-end px-84">
+      <div className="self-center">
         <AddBlogPost />
       </div>
-      <div className="grid grid-cols-1 gap-4 mt-4 mb-5 w-1/2">
+      <div className="grid grid-cols-1 gap-4 mt-4 mb-5 w-5/6 sm:w-3/4 lg:w-1/2">
         {post &&
           post.map((item) => (
             <BlogCard
@@ -89,6 +87,7 @@ const Post = () => {
               content={item.content}
               authorName={item.author.name}
               authorEmail={item.author.email}
+              images={item.images ?? []}
             />
           ))}
       </div>

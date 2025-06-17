@@ -11,7 +11,6 @@ import { AuthModule } from './auth/auth.module';
 import { CaslModule } from './casl/casl.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { MulterModule } from '@nestjs/platform-express';
-
 @Module({
   imports: [
     UserModule,
@@ -19,7 +18,7 @@ import { MulterModule } from '@nestjs/platform-express';
     PrismaModule,
     AuthModule,
     CaslModule,
-    MulterModule.register({}),
+    MulterModule.register(),
   ],
 })
 export class AppModule implements NestModule {

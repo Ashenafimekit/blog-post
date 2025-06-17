@@ -37,7 +37,7 @@ async function main() {
         create: {
           title: 'Second Post',
           content: 'This is the content of the second post.',
-          published: false,
+          published: true,
         },
       },
     },

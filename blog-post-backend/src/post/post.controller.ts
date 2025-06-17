@@ -29,6 +29,10 @@ import {
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { ZodValiationPipe } from 'src/common/pipes/zod-validation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { mkdir, writeFile } from 'fs/promises';
+import * as path from 'path';
+import { PostImageType } from './types/post-image.type';
 
 @Controller('post')
 export class PostController {
@@ -93,7 +97,26 @@ export class PostController {
   ) {
     // console.log('🚀 ~ PostController ~ createPostDto:', createPostDto);
     // console.log('Received Image File Details:', file);
-    const createdPost = await this.postService.createPost(createPostDto);
+
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    await mkdir(uploadsDir, { recursive: true });
+
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = extname(file.originalname);
+    const filename = `post-${uniqueSuffix}${ext}`;
+    const fullPath = path.join(uploadsDir, filename);
+
+    await writeFile(fullPath, file.buffer);
+    const image: PostImageType = {
+      originalName: file.originalname,
+      fileName: filename,
+      path: `uploads/${filename}`,
+      size: file.size,
+      mimetype: file.mimetype,
+    };
+
+    const createdPost = await this.postService.createPost(createPostDto, image);
+    console.log('🚀 ~ PostController ~ createdPost:', createdPost);
     return createdPost;
   }
 
