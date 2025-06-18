@@ -41,4 +41,6 @@ export class UserService {
     }
     return user;
   }
+
+  updateUser(id: string, body: any, imageUrl) {}
 }
