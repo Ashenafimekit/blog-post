@@ -26,12 +26,25 @@ export function SignupForm({
     try {
       const res = await axios.post(`${API_URL}/auth/signup`, data);
       if (res.status === 201) {
-        console.log("res : ", res);
+        // console.log("res : ", res);
         toast.success("Account created successfully");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error during form submission:", error);
-      toast.error("Internal Server Error");
+      if (error.response) {
+        const status = error.response.status;
+        let message = error.response.data.message || "something went wrong";
+
+        if (Array.isArray(message)) {
+          message.join(",");
+        }
+
+        if (status === 409) {
+          toast.error(message);
+        } else {
+          toast.error("Internal Server Error");
+        }
+      }
     }
   };
   return (

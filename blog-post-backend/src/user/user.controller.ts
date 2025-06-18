@@ -1,24 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Controller, Get, Param } from '@nestjs/common';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getAllUsers() {
-    try {
-      const users = await this.prisma.user.findMany({
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      });
-      return users;
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      throw new Error('Failed to fetch users');
-    }
+  getAllUsers() {
+    return this.userService.getAllUsers();
+  }
+
+  @Get(':id')
+  getById(@Param('id') id: string) {
+    return this.userService.getById(id);
   }
 }

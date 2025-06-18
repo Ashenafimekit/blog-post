@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import SessionProviderWrapper from "@/lib/SessionProviderWrapper";
 import { getServerSession } from "next-auth";
 import { QueryClientProviderWrapper } from "@/lib/queryClientProvider";
+import Header from "@/components/header/header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default async function RootLayout({
               position="top-center"
               theme="dark"
             />
+            <Header />
             {children}
           </SessionProviderWrapper>
         </QueryClientProviderWrapper>

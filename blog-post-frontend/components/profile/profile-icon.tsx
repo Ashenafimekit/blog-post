@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut, useSession } from "next-auth/react";
-import { UserType } from "@/lib/user.type";
+import Link from "next/link";
 
-const Profile = () => {
+const ProfileIcon = () => {
   const { data: session } = useSession();
 
   const logout = async () => {
@@ -30,8 +30,11 @@ const Profile = () => {
         <DropdownMenuContent>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>{session?.user.name} </DropdownMenuItem>
-          <DropdownMenuItem>{session?.user.email}</DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link href="/profile">Profile</Link>
+          </DropdownMenuItem>
+          {/* <DropdownMenuItem>{session?.user.name} </DropdownMenuItem> */}
+          {/* <DropdownMenuItem>{session?.user.email}</DropdownMenuItem> */}
           <DropdownMenuItem>
             <button onClick={logout}>Log out</button>
           </DropdownMenuItem>
@@ -41,4 +44,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default ProfileIcon;

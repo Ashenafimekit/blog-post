@@ -45,23 +45,26 @@ const BlogCard = ({
               ""
             )}
           </button>
-          <h1 className="font-semibold text-sm sm:text-lg md:text-xl text-black">
-            {title}
-          </h1>
-          {images && images.length > 0 && (
-            <div className="w-full">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_API_URL}/${images[0].path}`}
-                width={400}
-                height={300}
-                alt={images[0].originalName}
-                className="object-cover w-full h-auto rounded"
-              />
-            </div>
-          )}
-          <p className="text-xs sm:text-sm md:text-lg text-gray-900 text-end">
-            {content}
-          </p>
+          <div className="flex flex-col gap-2">
+            <h1 className="font-semibold text-sm sm:text-lg md:text-xl text-black">
+              {title}
+            </h1>
+            {images && images.length > 0 && (
+              <div className="w-full">
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/${images[0].path}`}
+                  width={400}
+                  height={300}
+                  alt={images[0].originalName}
+                  priority
+                  className="object-cover w-full h-auto rounded"
+                />
+              </div>
+            )}
+            <p className="text-xs sm:text-sm md:text-lg text-gray-900 ">
+              {content}
+            </p>
+          </div>
           {/* <div className="flex flex-col items-center justify-center mt-2">
           <h1 className="text-xs sm:text-sm md:text-lg text-gray-900">
             author : {authorName}

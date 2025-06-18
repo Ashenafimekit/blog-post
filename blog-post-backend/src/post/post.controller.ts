@@ -116,7 +116,6 @@ export class PostController {
     };
 
     const createdPost = await this.postService.createPost(createPostDto, image);
-    console.log('🚀 ~ PostController ~ createdPost:', createdPost);
     return createdPost;
   }
 

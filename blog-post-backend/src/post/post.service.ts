@@ -29,7 +29,6 @@ export class PostService {
           images: true,
         },
       });
-      console.log(posts);
       return posts;
     } catch (error) {
       if (error instanceof HttpException) {

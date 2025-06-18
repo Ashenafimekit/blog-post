@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -48,6 +53,12 @@ export class AuthService {
     try {
       const password = createUserDto.password;
       const hashedPassword = bcrypt.hashSync(password, 10);
+      const checkEmail = await this.prisma.user.findUnique({
+        where: { email: createUserDto.email },
+      });
+      if (checkEmail) {
+        throw new ConflictException('email is already registered');
+      }
       const user = await this.prisma.user.create({
         data: {
           name: createUserDto.name,
@@ -58,6 +69,9 @@ export class AuthService {
       return user;
     } catch (error) {
       this.loger.error(`internal server error`);
+      if (error instanceof ConflictException) {
+        throw error;
+      }
       throw new Error(error);
     }
   }
