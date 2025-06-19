@@ -45,12 +45,12 @@ const BlogCard = ({
               ""
             )}
           </button>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-full">
             <h1 className="font-semibold text-sm sm:text-lg md:text-xl text-black">
               {title}
             </h1>
             {images && images.length > 0 && (
-              <div className="w-full">
+              <div className="w-full ">
                 <Image
                   src={`${process.env.NEXT_PUBLIC_API_URL}/${images[0].path}`}
                   width={400}

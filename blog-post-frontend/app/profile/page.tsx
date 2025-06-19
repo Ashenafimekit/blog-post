@@ -13,9 +13,9 @@ import { EditInput, ProfileEditSchema } from "./schema/profile-edit.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-toastify";
+import { API_URL } from "@/constant/api-url";
 
 const Profile = () => {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const session = useSessionData();
   const [user, setUser] = useState<{
     name?: string;
@@ -67,7 +67,7 @@ const Profile = () => {
       try {
         const res = await axios.get(`${API_URL}/user/${userId}`);
         if (res.status === 200) {
-          console.log("🚀 ~ userData ~ res.data:", res.data);
+          // console.log("🚀 ~ userData ~ res.data:", res.data);
           reset(res.data);
           setUser(res.data);
           setAvatar(`${API_URL}/${res.data.profile}`);
@@ -80,7 +80,6 @@ const Profile = () => {
     if (session?.user?.id) {
       userData();
     }
-    console.log("user : ", user);
   }, [session?.user?.id]);
 
   const onSubmit: SubmitHandler<EditInput> = async (data) => {
@@ -141,12 +140,9 @@ const Profile = () => {
           </div>
           <div className="self-center">
             <Avatar className="w-20 h-20">
-              <AvatarFallback>Profile</AvatarFallback>
+              <AvatarFallback className="">Profile</AvatarFallback>
               <AvatarImage
-                src={
-                  previewUrl || avatar
-                  // "https://github.com/shadcn.png"
-                }
+                src={previewUrl || avatar || "https://github.com/shadcn.png"}
                 onClick={handleAvatarClick}
               />
             </Avatar>
