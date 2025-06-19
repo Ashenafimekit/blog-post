@@ -23,7 +23,7 @@ const ProfileIcon = () => {
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarImage src={"https://github.com/shadcn.png"} />
             <AvatarFallback>U</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>

@@ -25,7 +25,7 @@ export const ProfileEditSchema = z.object({
     .string()
     .min(1, { message: "Email is required" })
     .email({ message: "Invalid email address" }),
-  image: imageSchema.optional(),
+  avatar: imageSchema.optional(),
 });
 
 export type EditInput = z.infer<typeof ProfileEditSchema>;

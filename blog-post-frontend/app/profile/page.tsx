@@ -7,7 +7,7 @@ import { useSessionData } from "@/hooks/useSession";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { EditInput, ProfileEditSchema } from "./schema/profile-edit.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,10 +21,40 @@ const Profile = () => {
     name?: string;
     email?: string;
     role?: string;
+    avatar?: string;
   }>({});
   const userId = session.user.id;
   const { status } = useSession();
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm<EditInput>({
+    resolver: zodResolver(ProfileEditSchema),
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+    },
+  });
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setValue("avatar", file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -40,6 +70,7 @@ const Profile = () => {
           console.log("🚀 ~ userData ~ res.data:", res.data);
           reset(res.data);
           setUser(res.data);
+          setAvatar(`${API_URL}/${res.data.profile}`);
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -52,24 +83,14 @@ const Profile = () => {
     console.log("user : ", user);
   }, [session?.user?.id]);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<EditInput>({
-    resolver: zodResolver(ProfileEditSchema),
-    defaultValues: {
-      name: user.name,
-      email: user.email,
-    },
-  });
-
   const onSubmit: SubmitHandler<EditInput> = async (data) => {
     console.log("🚀 ~ onSubmit: ~ data:", data);
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("email", data.email);
+    if (data.avatar) {
+      formData.append("avatar", data.avatar);
+    }
     try {
       const res = await axios.patch(`${API_URL}/user/${userId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -103,15 +124,37 @@ const Profile = () => {
       <div className="flex items-center justify-center">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col items-center justify-center gap-4 py-2 w-2/3 sm:w-1/3 rounded-lg bg-white"
+          className="flex flex-col items-center justify-center gap-4 py-2 w-2/3 sm:w-1/2 md:w-1/2 lg:w-1/4 rounded-lg bg-white"
         >
+          <div>
+            <Input
+              type="file"
+              accept="image/*"
+              {...register("avatar")}
+              onChange={handleFileChange}
+              ref={(e) => {
+                register("avatar").ref(e);
+                fileInputRef.current = e;
+              }}
+              className="hidden"
+            />
+          </div>
           <div className="self-center">
             <Avatar className="w-20 h-20">
               <AvatarFallback>Profile</AvatarFallback>
-              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarImage
+                src={
+                  previewUrl || avatar
+                  // "https://github.com/shadcn.png"
+                }
+                onClick={handleAvatarClick}
+              />
             </Avatar>
           </div>
-          <div className="flex flex-col gap-2 px-3 md:px-0">
+          {errors.avatar && (
+            <p className="text-sm text-red-500">{errors.avatar.message}</p>
+          )}
+          <div className="fonClick={handleAvatarClick}lex flex-col gap-2 px-3 md:px-0">
             <div className="flex flex-row gap-3">
               <Label>Name </Label>
               <Input {...register("name")} />

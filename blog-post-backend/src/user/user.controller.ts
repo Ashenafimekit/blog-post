@@ -34,7 +34,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('profile'))
+  @UseInterceptors(FileInterceptor('avatar'))
   async updateUser(
     @UploadedFile(
       new ParseFilePipe({
