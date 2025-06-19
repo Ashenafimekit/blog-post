@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-toastify";
 import { API_URL } from "@/constant/api-url";
+import { Camera } from "lucide-react";
 
 const Profile = () => {
   const session = useSessionData();
@@ -139,18 +140,25 @@ const Profile = () => {
             />
           </div>
           <div className="self-center">
-            <Avatar className="w-20 h-20">
-              <AvatarFallback className="">Profile</AvatarFallback>
-              <AvatarImage
-                src={previewUrl || avatar || "https://github.com/shadcn.png"}
-                onClick={handleAvatarClick}
-              />
-            </Avatar>
+            <div
+              className="relative w-20 h-20 group"
+              onClick={handleAvatarClick}
+            >
+              <Avatar className="w-full h-full shadow-xl cursor-pointer">
+                <AvatarImage src={previewUrl || avatar} />
+                <AvatarFallback>{session.user.name?.[0] ?? "P"}</AvatarFallback>
+              </Avatar>
+
+              {/* Hover Overlay */}
+              <div className="absolute bottom-0 left-0 w-full h-1/2 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-full pointer-events-none">
+                <Camera className="text-white w-5 h-5" />
+              </div>
+            </div>
           </div>
           {errors.avatar && (
             <p className="text-sm text-red-500">{errors.avatar.message}</p>
           )}
-          <div className="fonClick={handleAvatarClick}lex flex-col gap-2 px-3 md:px-0">
+          <div className="flex flex-col gap-6 px-3 md:px-0">
             <div className="flex flex-row gap-3">
               <Label>Name </Label>
               <Input {...register("name")} />

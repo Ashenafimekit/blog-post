@@ -1,15 +1,18 @@
 import { BlogCardProps } from "@/types/blog-card.type";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BlogAction from "./blog-action";
 import { useSessionData } from "@/hooks/useSession";
 import { Avatar } from "../ui/avatar";
 import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import Image from "next/image";
+import { API_URL } from "@/constant/api-url";
+import axios from "axios";
 
 const BlogCard = ({
   id,
   title,
   content,
+  authorId,
   authorName,
   authorEmail,
   images,
@@ -17,13 +20,36 @@ const BlogCard = ({
   // console.log("🚀 ~ images:", images);
   const session = useSessionData();
   const user = session.user;
+  const [userData, setUserData] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    profile: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await axios.get(`${API_URL}/user/${authorId}`);
+      if (res.status === 200) {
+        setUserData(res.data);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <div className="flex flex-col gap-2 items-center justify-center ">
       <div className="flex flex-col gap-2 w-full sm:w-3/4 ">
         <div className="flex flex-row gap-2 self-start ">
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarImage
+              src={
+                `${API_URL}/${userData?.profile}` ||
+                "https://github.com/shadcn.png"
+              }
+            />
             <AvatarFallback>U</AvatarFallback>
           </Avatar>
           <div className="">

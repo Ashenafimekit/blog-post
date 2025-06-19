@@ -3,6 +3,7 @@ export interface PostType {
   title: string;
   content: string;
   author: {
+    id: string;
     name: string;
     email: string;
     published?: boolean;

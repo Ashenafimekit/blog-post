@@ -85,6 +85,7 @@ const Post = () => {
               id={String(item.id ?? "")}
               title={item.title}
               content={item.content}
+              authorId={item.author.id}
               authorName={item.author.name}
               authorEmail={item.author.email}
               images={item.images ?? []}

@@ -29,7 +29,7 @@ const ProfileIcon = () => {
       try {
         const res = await axios.get(`${API_URL}/user/${session?.user.id}`);
         if (res.status === 200) {
-          console.log("🚀 ~ fetchProfile ~ res.data:", res.data);
+          // console.log("🚀 ~ fetchProfile ~ res.data:", res.data);
           setUser(res.data);
         }
       } catch (error) {
@@ -43,7 +43,7 @@ const ProfileIcon = () => {
       console.warn("user id is required ");
       const handleRefetch = async () => {
         const newSession = await update();
-        console.log("🔄 Session refetched:", newSession);
+        // console.log("🔄 Session refetched:", newSession);
       };
       handleRefetch();
     }
@@ -53,8 +53,10 @@ const ProfileIcon = () => {
     signOut();
   };
 
-  const avatarSrc = user?.profile ? `${API_URL}/${user.profile}` : undefined;
-  const avatarFallback = user?.name?.[0]?.toUpperCase() || "U";
+  const avatarSrc = user?.profile
+    ? `${API_URL}/${user.profile}`
+    : "https://github.com/shadcn.png";
+  const avatarFallback = user?.name?.[0]?.toUpperCase();
 
   return (
     <DropdownMenu>
