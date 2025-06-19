@@ -55,7 +55,7 @@ const ProfileIcon = () => {
 
   const avatarSrc = user?.profile
     ? `${API_URL}/${user.profile}`
-    : "https://github.com/shadcn.png";
+    : "";
   const avatarFallback = user?.name?.[0]?.toUpperCase();
 
   return (

@@ -71,10 +71,7 @@ const Post = () => {
 
   return (
     <div className="flex flex-col items-center justify-center mb-5">
-      <div className="">
-        <p className="text-lg text-gray-900">Welcome to the blog</p>
-      </div>
-      <div className="self-center">
+      <div className="self-center pt-5">
         <AddBlogPost />
       </div>
       <div className="grid grid-cols-1 gap-4 mt-4 mb-5 w-5/6 sm:w-3/4 lg:w-1/2">
