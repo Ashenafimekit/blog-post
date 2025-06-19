@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
+// import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
+import { UpdatePostDto } from 'src/zod';
 import { PostImageType } from './types/post-image.type';
 
 @Injectable()
@@ -65,12 +66,6 @@ export class PostService {
   async createPost(createPostDto: CreatePostDto, image: PostImageType) {
     const { title, content, authorId } = createPostDto;
 
-    console.log('🚀 ~ PostService ~ createPost ~ image:', image);
-    console.log(
-      '🚀 ~ PostService ~ createPost ~ createPostDto:',
-      createPostDto,
-    );
-
     try {
       const post = await this.prisma.post.create({
         data: {
@@ -118,13 +113,8 @@ export class PostService {
       const updatePost = await this.prisma.post.update({
         where: { id: id },
         data: {
-          title: title,
-          content: content,
-          author: {
-            connect: {
-              id: authorId,
-            },
-          },
+          ...(title && { title: title }),
+          ...(content && { content: content }),
         },
         include: {
           author: true,

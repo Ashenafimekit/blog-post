@@ -16,7 +16,10 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<Inputs>({ resolver: zodResolver(BlogPostSchema) });
+  } = useForm<Inputs>({
+    resolver: zodResolver(BlogPostSchema),
+    defaultValues: { title: title, content: content },
+  });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     console.log("🚀 ~ PostForm ~ data:", data);
@@ -51,9 +54,13 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
     };
 
     const updatePost = async () => {
+      console.log("form ", formData);
       try {
         const res = await axios.patch(`${API_URL}/post/${id}`, formData, {
-          headers: { Authorization: `Bearer ${session.accessToken}` },
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            "Content-Type": "multipart/form-data",
+          },
         });
         if (res.status === 200) {
           toast.success("updated successfully");

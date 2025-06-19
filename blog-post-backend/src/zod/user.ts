@@ -1,14 +1,13 @@
 import * as z from 'zod';
-import { Role } from './enums';
+// import { Role } from './enums';
 
 export const UserSchema = z.object({
-  id: z.string(),
-  name: z.string().nullish(),
-  email: z.string().nullish(),
-  password: z.string().nullish(),
-  profile: z.string().optional(),
-  role: z.nativeEnum(Role),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  deletedAt: z.date().nullish(),
+  id: z.string().nullable(),
+  name: z.string().nullable(),
+  email: z.string().nullable(),
+  password: z.string().nullable(),
+  // profile: z.string().optional(),
+  // role: z.nativeEnum(Role),
 });
+
+export type userDto = z.infer<typeof UserSchema>;

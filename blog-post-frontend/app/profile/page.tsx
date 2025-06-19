@@ -12,6 +12,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { EditInput, ProfileEditSchema } from "./schema/profile-edit.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -64,7 +65,35 @@ const Profile = () => {
     },
   });
 
-  const onSubmit: SubmitHandler<EditInput> = () => {};
+  const onSubmit: SubmitHandler<EditInput> = async (data) => {
+    console.log("🚀 ~ onSubmit: ~ data:", data);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    try {
+      const res = await axios.patch(`${API_URL}/user/${userId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (res.status === 200) {
+        toast.success("successfully updated");
+      }
+    } catch (error: any) {
+      console.log("🚀 ~ onSubmit~ error:", error);
+      if (error.response) {
+        const status = error.response.status;
+        let message = error.response.data.message || "something went wrong";
+
+        if (Array.isArray(message)) {
+          message.join(",");
+        }
+        if (status === 404) {
+          toast(`user not found `, message);
+        } else {
+          toast("Internal Server Error");
+        }
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-200 ">
@@ -72,7 +101,10 @@ const Profile = () => {
         <Breadcrumbs />
       </div>
       <div className="flex items-center justify-center">
-        <div className="flex flex-col items-center justify-center gap-4 py-2 w-2/3 sm:w-1/3 rounded-lg bg-white">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col items-center justify-center gap-4 py-2 w-2/3 sm:w-1/3 rounded-lg bg-white"
+        >
           <div className="self-center">
             <Avatar className="w-20 h-20">
               <AvatarFallback>Profile</AvatarFallback>
@@ -106,7 +138,7 @@ const Profile = () => {
           <div className="self-center">
             <Button type="submit">Update</Button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

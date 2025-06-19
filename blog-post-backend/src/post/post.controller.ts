@@ -95,9 +95,6 @@ export class PostController {
     @Body(new ZodValiationPipe(PostSchema))
     createPostDto: CreatePostDto,
   ) {
-    // console.log('🚀 ~ PostController ~ createPostDto:', createPostDto);
-    // console.log('Received Image File Details:', file);
-
     const uploadsDir = path.join(process.cwd(), 'uploads');
     await mkdir(uploadsDir, { recursive: true });
 
@@ -121,9 +118,22 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('image'))
   async updatePost(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }), // Max 5MB
+          new FileTypeValidator({ fileType: 'image/(jpeg|png|webp|jpg)' }),
+        ],
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        fileIsRequired: false,
+      }),
+    )
+    file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() updatePostDto: UpdatePostDto,
+    @Body()
+    updatePostDto: { title?: string; content?: string; authorId: string },
   ) {
     const updatedPost = await this.postService.updatePost(updatePostDto, id);
     return updatedPost;

@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { userDto } from 'src/zod';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name, { timestamp: true });
   constructor(private readonly prisma: PrismaService) {}
 
   async getAllUsers() {
@@ -42,5 +44,40 @@ export class UserService {
     return user;
   }
 
-  updateUser(id: string, body: any, imageUrl) {}
+  async updateUser(
+    id: string,
+    updateUserDto: userDto,
+    imageUrl: string | undefined,
+  ) {
+    try {
+      const findUser = await this.prisma.user.findUnique({ where: { id: id } });
+      if (!findUser) {
+        throw new NotFoundException('user not found');
+      }
+
+      const updatedUser = await this.prisma.user.update({
+        where: { id: id },
+        data: {
+          ...(updateUserDto.name && { name: updateUserDto.name }),
+          ...(updateUserDto.email && { email: updateUserDto.email }),
+          ...(imageUrl && { profile: imageUrl }),
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          profile: true,
+          role: true,
+        },
+      });
+
+      return updatedUser;
+    } catch (error) {
+      this.logger.error(error);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new Error();
+    }
+  }
 }

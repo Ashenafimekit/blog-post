@@ -17,6 +17,7 @@ import { extname } from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import * as path from 'path';
 import { PostImageType } from 'src/post/types/post-image.type';
+import { userDto } from 'src/zod';
 
 @Controller('user')
 export class UserController {
@@ -47,19 +48,26 @@ export class UserController {
     )
     file: Express.Multer.File,
     @Param('id') id: string,
-    @Body() body: any,
+    @Body() updateUserDto: userDto,
   ) {
-    const uploadsDir = path.join(process.cwd(), 'uploads');
-    await mkdir(uploadsDir, { recursive: true });
+    let imageUrl: string | undefined;
 
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = extname(file.originalname);
-    const filename = `post-${uniqueSuffix}${ext}`;
-    const fullPath = path.join(uploadsDir, filename);
+    if (file) {
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      await mkdir(uploadsDir, { recursive: true });
 
-    await writeFile(fullPath, file.buffer);
-    const imageUrl = `uploads/${filename}`;
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const ext = extname(file.originalname);
+      const filename = `post-${uniqueSuffix}${ext}`;
+      const fullPath = path.join(uploadsDir, filename);
 
-    const updateUser = this.userService.updateUser(id, body, imageUrl);
+      console.log('before writing');
+      await writeFile(fullPath, file.buffer);
+      console.log('after writing');
+
+      imageUrl = `uploads/${filename}`;
+    }
+
+    return this.userService.updateUser(id, updateUserDto, imageUrl);
   }
 }
