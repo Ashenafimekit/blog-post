@@ -9,16 +9,20 @@ const ACCEPTED_IMAGE_TYPES = [
 ];
 
 export const imageSchema = z
-  .custom<File>((file) => file instanceof File, {
-    message: "No file selected",
-  })
-  .refine((file) => file.size <= MAX_FILE_SIZE, {
-    message: "Image must be smaller than 5MB",
-  })
-  .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
-    message: "Only .jpg, .jpeg, .png, and .webp formats are supported.",
-  });
-
+  .instanceof(File)
+  .optional() // 👈 Explicitly optional
+  .refine(
+    (file) => !file || file.size <= MAX_FILE_SIZE, // 👈 Skip if undefined
+    {
+      message: "Image must be smaller than 5MB",
+    }
+  )
+  .refine(
+    (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type), // 👈 Skip if undefined
+    {
+      message: "Only .jpg, .jpeg, .png, and .webp formats are supported.",
+    }
+  );
 export const ProfileEditSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z
