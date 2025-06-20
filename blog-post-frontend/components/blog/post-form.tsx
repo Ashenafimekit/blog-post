@@ -7,11 +7,13 @@ import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { API_URL } from "@/constant/api-url";
 
 const PostForm = ({ id, title, content }: BlogCardProps) => {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const session = useSessionData();
-  // console.log("🚀 ~ PostForm ~ session:", session)
+  const queryClient = useQueryClient();
+
   const {
     register,
     handleSubmit,
@@ -21,83 +23,86 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
     defaultValues: { title: title, content: content },
   });
 
+  // Define mutation functions at the top level
+  const newPostMutation = useMutation({
+    mutationKey: ["createPost"],
+    mutationFn: async (formData: FormData) => {
+      const res = await axios.post(`${API_URL}/post`, formData, {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Post created successfully");
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error: any) => {
+      handleError(error, "Error creating post");
+    },
+  });
+
+  const updatePostMutation = useMutation({
+    mutationKey: ["updatePost", id],
+    mutationFn: async (formData: FormData) => {
+      const res = await axios.patch(`${API_URL}/post/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Post updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error: any) => {
+      handleError(error, "Error updating post");
+    },
+  });
+
+  const handleError = (error: any, defaultMessage: string) => {
+    if (error.response) {
+      const status = error.response.status;
+      let message = error.response.data.message || defaultMessage;
+
+      if (Array.isArray(message)) {
+        message = message.join(", ");
+      }
+      if (status === 401) {
+        toast.error(`Unauthorized: ${message}`);
+      } else if (status === 404) {
+        toast.error(`Not found: ${message}`);
+      } else {
+        toast.error(message);
+      }
+      console.log(`[${status}]`, message);
+    } else if (error.request) {
+      toast.error("No response from server");
+      console.error("No response:", error.request);
+    } else {
+      toast.error("Unexpected error");
+      console.error("Error:", error.message);
+    }
+  };
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log("🚀 ~ PostForm ~ data:", data);
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
-    formData.append("authorId", session.user.id);
+    formData.append("authorId", session?.user?.id || "");
 
     if (data.image) {
       data.image.forEach((image) => formData.append("image", image));
     }
 
-    const newPost = async () => {
-      try {
-        const res = await axios.post(`${API_URL}/post`, formData, {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        console.log("resposne : ", res);
-        if (res.status === 201) {
-          toast.success("Post created successfully");
-        } else {
-          toast.error("Error creating post");
-          console.error("Error creating post:", res.data);
-        }
-      } catch (error) {
-        console.error("Error creating post:", error);
-        toast.error("Error creating post");
-      }
-    };
-
-    const updatePost = async () => {
-      console.log("form ", formData);
-      try {
-        const res = await axios.patch(`${API_URL}/post/${id}`, formData, {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        if (res.status === 200) {
-          toast.success("updated successfully");
-        } else {
-          toast.error("unable to update");
-        }
-      } catch (error: any) {
-        if (error.response) {
-          const status = error.response.status;
-          let message = error.response.data.message || "something went wrong";
-
-          if (Array.isArray(message)) {
-            message.join(", ");
-          }
-          if (status === 401) {
-            toast.error(`Unauthorized: ${message}`);
-          } else if (status === 404) {
-            toast.error(`Not found: ${message}`);
-          } else {
-            toast.error(message);
-          }
-
-          console.log(`[${status}]`, message);
-        } else if (error.request) {
-          toast.error("No response from server");
-          console.error("No response:", error.request);
-        } else {
-          toast.error("Unexpected error");
-          console.error("Error:", error.message);
-        }
-      }
-    };
-
     if (id) {
-      updatePost();
+      updatePostMutation.mutate(formData);
     } else {
-      newPost();
+      newPostMutation.mutate(formData);
     }
   };
 
@@ -115,7 +120,6 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
             {...register("title")}
             className="border border-gray-300 rounded-md p-2"
           />
-
           {errors.title && (
             <span className="text-sm text-red-500">{errors.title.message}</span>
           )}
@@ -153,9 +157,20 @@ const PostForm = ({ id, title, content }: BlogCardProps) => {
         </div>
         <button
           type="submit"
+          disabled={
+            isSubmitting ||
+            newPostMutation.isPending ||
+            updatePostMutation.isPending
+          }
           className="mt-4 bg-zinc-800 text-white px-4 py-2 rounded-md"
         >
-          {isSubmitting ? "loading" : id ? "Update Post" : "Create Post"}
+          {isSubmitting ||
+          newPostMutation.isPending ||
+          updatePostMutation.isPending
+            ? "Loading..."
+            : id
+            ? "Update Post"
+            : "Create Post"}
         </button>
       </form>
     </div>

@@ -67,10 +67,12 @@ const Post = () => {
     data: posts,
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["posts"],
     queryFn: fetchPosts,
     enabled: !!session?.accessToken,
+    
   });
 
   if (isLoading) {
@@ -83,7 +85,7 @@ const Post = () => {
   if (isError) {
     return (
       <div className="flex items-center justify-center h-screen">
-        Error fetching posts
+        Error fetching posts: {error.message}
       </div>
     );
   }
