@@ -23,10 +23,10 @@ async function bootstrap() {
 
   app.useGlobalFilters(
     new HttpExceptionFilter(),
-    new AllExceptionFilter(),
     new PrismaExceptionFilter(),
     new PrismaUnknownExceptionFilter(),
     new PrismaValidationErrorFilter(),
+    new AllExceptionFilter(),
   );
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.use(cookieParser());
