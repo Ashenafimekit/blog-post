@@ -87,7 +87,7 @@ const BlogCard = ({
                 />
               </div>
             )}
-            <p className="text-xs sm:text-sm md:text-lg text-gray-900 ">
+            <p className="text-xs sm:text-sm text-gray-900 ">
               {content}
             </p>
           </div>

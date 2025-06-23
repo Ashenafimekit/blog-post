@@ -18,12 +18,12 @@ import {
 import { PostService } from './post.service';
 // import { CreatePostDto } from './dto/create-post.dto/create-post.dto';
 import { CreatePostDto, PostSchema } from 'src/zod';
-import { UpdatePostDto } from './dto/update-post.dto/update-post.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CurrentUser } from 'src/common/decorator/current-user';
 import { User } from '@prisma/client';
 import {
+  Action,
   // Action,
   CaslAbilityFactory,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
@@ -60,14 +60,14 @@ export class PostController {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    return this.postService.getAllPosts(pageNumber, limitNumber);
+    // return this.postService.getAllPosts(pageNumber, limitNumber);
 
-    // const ability = this.caslAbilityFactory.createForUser(user);
-    // const posts = this.postService.getAllPosts(pageNumber, limitNumber);
-    // if (ability.can(Action.Read, 'Post')) {
-    //   return posts;
-    // }
-    // return null;
+    const ability = this.caslAbilityFactory.createForUser(user);
+    const posts = this.postService.getAllPosts(pageNumber, limitNumber);
+    if (ability.can(Action.Read, 'Post')) {
+      return posts;
+    }
+    return null;
   }
 
   @UseGuards(JwtAuthGuard)

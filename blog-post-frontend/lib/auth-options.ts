@@ -42,8 +42,7 @@ export const authOptions: NextAuthOptions = {
             {
               email,
               password,
-            },
-            { withCredentials: true }
+            }
           );
           if (!response.data.success) {
             return null;

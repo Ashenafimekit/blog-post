@@ -161,7 +161,7 @@ const Profile = () => {
               onClick={handleAvatarClick}
             >
               <Avatar className="w-full h-full shadow-xl cursor-pointer">
-                <AvatarImage src={previewUrl || avatar} />
+                <AvatarImage src={previewUrl || avatar || ""} />
                 <AvatarFallback>{session.user.name?.[0] ?? "P"}</AvatarFallback>
               </Avatar>
 

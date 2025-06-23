@@ -27,7 +27,8 @@ export function LoginForm() {
       const res = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false,
+        callbackUrl: "/",
+        redirect: true,
       });
       if (res?.error) {
         console.log("Error logging in:", res.error);
@@ -35,8 +36,6 @@ export function LoginForm() {
       } else {
         // console.log("Login successful");
         toast.success("Login successful");
-
-        window.location.href = "/";
       }
     } catch (error) {
       console.error("Error during form submission:", error);

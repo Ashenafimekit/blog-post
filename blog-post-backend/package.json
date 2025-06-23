@@ -33,6 +33,7 @@
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
+    "extra": "link:@casl/ability/extra",
     "multer": "^2.0.1",
     "nestjs-zod": "1.1.0",
     "passport": "^0.7.0",

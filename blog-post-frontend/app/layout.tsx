@@ -6,6 +6,9 @@ import SessionProviderWrapper from "@/lib/SessionProviderWrapper";
 import { getServerSession } from "next-auth";
 import { QueryClientProviderWrapper } from "@/lib/queryClientProvider";
 import Header from "@/components/header/header";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth-options";
+import RouteProtector from "@/lib/route-protector";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,8 +30,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession();
-  
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -36,13 +39,15 @@ export default async function RootLayout({
       >
         <QueryClientProviderWrapper>
           <SessionProviderWrapper session={session}>
-            <ToastContainer
-              autoClose={2000}
-              position="top-center"
-              theme="dark"
-            />
-            <Header />
-            {children}
+            <RouteProtector>
+              <ToastContainer
+                autoClose={2000}
+                position="top-center"
+                theme="dark"
+              />
+              <Header />
+              {children}
+            </RouteProtector>
           </SessionProviderWrapper>
         </QueryClientProviderWrapper>
       </body>

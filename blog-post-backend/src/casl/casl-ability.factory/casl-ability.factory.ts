@@ -22,7 +22,7 @@ export class CaslAbilityFactory {
 
     if (user.role === 'ADMIN') {
       can(Action.Manage, 'all');
-    } else {
+    } else if (user.role === 'USER') {
       can(Action.Read, 'Post', { authorId: user.id });
     }
 
