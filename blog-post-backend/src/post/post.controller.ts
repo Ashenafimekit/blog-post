@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   FileTypeValidator,
-  ForbiddenException,
   Get,
   HttpStatus,
   MaxFileSizeValidator,

@@ -13,12 +13,12 @@ export type AppAbility = MongoAbility<[Action, AppSubjects]>;
 @Injectable()
 export class CaslAbilityFactory {
   createForUser(user: User) {
-    const { can, build, cannot } = new AbilityBuilder(createMongoAbility);
+    const { can, build } = new AbilityBuilder(createMongoAbility);
 
     if (user.role === 'ADMIN') {
       can(Action.Manage, 'all');
     } else {
-      cannot(Action.Read, 'Post');
+      can(Action.Read, 'Post');
       can(Action.Update, 'Post', { authorId: user.id });
       can(Action.Delete, 'Post', { authorId: user.id });
       can(Action.Read, 'User', { id: user.id });
