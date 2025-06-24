@@ -1,29 +1,28 @@
-import { AbilityBuilder, AbilityClass, PureAbility } from '@casl/ability';
+import {
+  AbilityBuilder,
+  createMongoAbility,
+  MongoAbility,
+} from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
+import { Action, AppSubjects } from 'src/common/types/indext';
 
-export enum Action {
-  Manage = 'manage',
-  Create = 'create',
-  Read = 'read',
-  Update = 'update',
-  Delete = 'delete',
-}
-
-type AppSubjects = 'User' | 'Post' | 'all';
-export type AppAbility = PureAbility<[Action, AppSubjects]>;
+// type AppSubjects = 'User' | 'Post' | 'all';
+export type AppAbility = MongoAbility<[Action, AppSubjects]>;
 
 @Injectable()
 export class CaslAbilityFactory {
   createForUser(user: User) {
-    const { can, build } = new AbilityBuilder<AppAbility>(
-      PureAbility as AbilityClass<AppAbility>,
-    );
+    const { can, build, cannot } = new AbilityBuilder(createMongoAbility);
 
     if (user.role === 'ADMIN') {
       can(Action.Manage, 'all');
-    } else if (user.role === 'USER') {
-      can(Action.Read, 'Post', { authorId: user.id });
+    } else {
+      cannot(Action.Read, 'Post');
+      can(Action.Update, 'Post', { authorId: user.id });
+      can(Action.Delete, 'Post', { authorId: user.id });
+      can(Action.Read, 'User', { id: user.id });
+      can(Action.Update, 'User', { id: user.id });
     }
 
     return build({

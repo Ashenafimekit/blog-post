@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   FileTypeValidator,
+  ForbiddenException,
   Get,
   HttpStatus,
   MaxFileSizeValidator,
@@ -23,7 +24,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CurrentUser } from 'src/common/decorator/current-user';
 import { User } from '@prisma/client';
 import {
-  Action,
   // Action,
   CaslAbilityFactory,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
@@ -33,6 +33,9 @@ import { extname } from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import * as path from 'path';
 import { PostImageType } from './types/post-image.type';
+import { Action, AppAbility } from 'src/common/types/indext';
+import { PoliciesGuard } from 'src/common/guards/policy.guard';
+import { CheckPolicies } from 'src/common/decorator/check-policy.decorator';
 
 @Controller('post')
 export class PostController {
@@ -49,25 +52,18 @@ export class PostController {
     return { total };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PoliciesGuard)
   @Get()
+  @CheckPolicies((ability: AppAbility) => ability.can(Action.Read, 'Post'))
   getAllPosts(
     @CurrentUser() user: User,
     @Query('page') page: string,
     @Query('limit') limit: string,
   ) {
-    // console.log('🚀 ~ PostController ~ user:', user);
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    // return this.postService.getAllPosts(pageNumber, limitNumber);
-
-    const ability = this.caslAbilityFactory.createForUser(user);
-    const posts = this.postService.getAllPosts(pageNumber, limitNumber);
-    if (ability.can(Action.Read, 'Post')) {
-      return posts;
-    }
-    return null;
+    return this.postService.getAllPosts(pageNumber, limitNumber);
   }
 
   @UseGuards(JwtAuthGuard)
